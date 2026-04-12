@@ -14,6 +14,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install nvdiffrast with --no-build-isolation (needs PyTorch already installed)
+RUN pip install --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
+
 # Copy source code
 COPY . .
 
