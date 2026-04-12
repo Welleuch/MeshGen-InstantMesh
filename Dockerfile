@@ -2,13 +2,17 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
+# Install system dependencies including CUDA toolkit for nvdiffrast
 RUN apt-get update && apt-get install -y \
     git \
     wget \
     libgl1-mesa-dev \
     libglib2.0-0 \
+    cuda-toolkit \
     && rm -rf /var/lib/apt/lists/*
+
+# Set CUDA_HOME environment variable
+ENV CUDA_HOME=/usr/local/cuda
 
 # Copy requirements
 COPY requirements.txt .
