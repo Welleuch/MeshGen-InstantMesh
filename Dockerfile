@@ -1,30 +1,31 @@
-FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn8-devel-ubuntu22.04
+# 1. Corrected Tag
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
 
-WORKDIR /app
-
-# Install system dependencies
+# 2. System dependencies for Git, C++ compilation, and 3D Rendering
 RUN apt-get update && apt-get install -y \
     git \
-    wget \
+    build-essential \
+    ninja-build \
     libgl1-mesa-dev \
+    libegl1-mesa-dev \
+    libgles2-mesa-dev \
     libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
-# Ensure CUDA_HOME is set
-ENV CUDA_HOME=/usr/local/cuda
+WORKDIR /app
 
-# Copy requirements (torch/torchaudio/torchvision already pre-installed in base image)
+# 3. Environment variables for compilation
+ENV TORCH_CUDA_ARCH_LIST="8.0;8.6;8.9;9.0"
+ENV FORCE_CUDA="1"
+
+# 4. Install requirements (assuming you have a requirements.txt)
 COPY requirements.txt .
-
-# Install Python dependencies (excluding torch which is pre-installed)
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install nvdiffrast (needs PyTorch and CUDA already installed)
-RUN pip install --no-build-isolation git+https://github.com/NVlabs/nvdiffrast/
+# 5. Install nvdiffrast specifically with no-build-isolation
+RUN pip install git+https://github.com/NVlabs/nvdiffrast.git --no-build-isolation
 
-# Copy source code
 COPY . .
 
-EXPOSE 8000
-
+# RunPod Specifics (adjust if your entrypoint file is different)
 CMD ["python", "runpod_handler.py"]
