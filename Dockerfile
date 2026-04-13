@@ -1,26 +1,22 @@
-FROM nvidia/cuda:12.1.0-devel-ubuntu22.04
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn8-devel-ubuntu22.04
 
 WORKDIR /app
 
-# Install Python 3.10 and system dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    python3.10 \
-    python3.10-dev \
-    python3-pip \
     git \
     wget \
     libgl1-mesa-dev \
     libglib2.0-0 \
-    && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/bin/python3.10 /usr/bin/python
+    && rm -rf /var/lib/apt/lists/*
 
-# Set CUDA_HOME environment variable (already set in nvidia/cuda image, but ensure it)
+# Ensure CUDA_HOME is set
 ENV CUDA_HOME=/usr/local/cuda
 
-# Copy requirements
+# Copy requirements (torch/torchaudio/torchvision already pre-installed in base image)
 COPY requirements.txt .
 
-# Install Python dependencies
+# Install Python dependencies (excluding torch which is pre-installed)
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Install nvdiffrast (needs PyTorch and CUDA already installed)
